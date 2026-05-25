@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Pulse Clock</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <style>
+            @import url("https://fonts.googleapis.com/css2?family=Spectral:wght@400;500;600&family=Work+Sans:wght@400;500;600&display=swap");
+
+            :root {
+                color-scheme: light;
+            }
+
+            body {
+                font-family:
+                    "Work Sans", "Segoe UI", "Helvetica Neue", Helvetica, Arial,
+                    sans-serif;
+                background:
+                    radial-gradient(
+                        circle at 30% 20%,
+                        rgba(255, 251, 244, 0.9),
+                        rgba(244, 241, 235, 0.95) 45%
+                    ),
+                    linear-gradient(
+                        135deg,
+                        rgba(247, 244, 238, 0.98),
+                        rgba(238, 235, 229, 0.98)
+                    );
+            }
+
+            .title-font {
+                font-family: "Spectral", "Times New Roman", serif;
+            }
+
+            .clock-shell {
+                background: radial-gradient(
+                    circle at 30% 30%,
+                    rgba(255, 255, 255, 0.9),
+                    rgba(244, 241, 235, 0.85) 60%
+                );
+            }
+
+            .ms-display {
+                transition: opacity 0.12s linear;
+            }
+
+            .beep-flash {
+                box-shadow: 0 0 0 2px rgba(60, 52, 45, 0.12);
+                transition: box-shadow 0.2s ease;
+            }
+        </style>
+    </head>
+    <body class="min-h-screen text-neutral-900">
+        <header class="text-center py-5">
+            <h1 class="text-xs uppercase tracking-[0.3em] text-neutral-500">
+                Pulse clock
+            </h1>
+        </header>
+        <main
+            class="mx-auto flex min-h-screen max-w-5xl flex-col items-center justify-center gap-8 py-8 px-5 sm:px-8"
+        >
+            <!-- Countdown display -->
+            <section class="w-full max-w-2xl" id="pulsePanel">
+                <div class="flex flex-col gap-2">
+                    <h3 class="text-center text-xl font-medium text-neutral-700">
+                        Timer
+                    </h3>
+                    <!-- Timer Input Mode -->
+                    <div class="flex flex-col items-center gap-3 text-center">
+                        <div
+                            class="flex flex-wrap items-center justify-center gap-2 text-xs text-neutral-500"
+                        >
+                            <label class="flex items-center gap-1">
+                                <input
+                                    type="radio"
+                                    name="timerMode"
+                                    value="hms"
+                                    checked
+                                />
+                                <span>HH:MM:SS</span>
+                            </label>
+                            <label class="flex items-center gap-1">
+                                <input
+                                    type="radio"
+                                    name="timerMode"
+                                    value="minutes"
+                                />
+                                <span>Minutes</span>
+                            </label>
+                            <label class="flex items-center gap-1">
+                                <input
+                                    type="radio"
+                                    name="timerMode"
+                                    value="seconds"
+                                />
+                                <span>Seconds</span>
+                            </label>
+                    </div>
+
+                    <!-- Timer Inputs (numeric) -->
+                    <div class="flex justify-center mb-2">
+                        <div id="timerInputs" class="flex items-center justify-center"></div>
+                    </div>
+
+                    <!-- Timer Display -->
+                    <div
+                        class="clock-shell mx-auto flex w-full flex-col items-center gap-3 rounded-full px-10 pb-10 text-center"
+                    >
+                        <div
+                            class="flex items-end justify-center gap-2"
+                            id="timerDisplay"
+                        >
+                            <span
+                                class="ms-display title-font text-2xl text-neutral-500 sm:text-3xl"
+                                id="msDisplay"
+                                >.00</span
+                            >
+                        </div>
+                        <div
+                            class="text-xs uppercase tracking-[0.25em] text-neutral-500"
+                            id="stateBadge"
+                        >
+                            Idle
+                        </div>
+                    </div>
+
+                    <!-- Interval Section -->
+                    <div class="flex flex-col gap-3 pt-4">
+                        <div class="flex flex-col gap-2 text-center">
+                            <h3 class="text-xl font-medium text-neutral-700">
+                                Interval
+                            </h3>
+                            <div
+                                class="flex flex-wrap items-center justify-center gap-2 text-xs text-neutral-500"
+                            >
+                                <label class="flex items-center gap-1">
+                                    <input
+                                        type="radio"
+                                        name="intervalMode"
+                                        value="hms"
+                                        checked
+                                    />
+                                    <span>HH:MM:SS</span>
+                                </label>
+                                <label class="flex items-center gap-1">
+                                    <input
+                                        type="radio"
+                                        name="intervalMode"
+                                        value="minutes"
+                                    />
+                                    <span>Minutes</span>
+                                </label>
+                                <label class="flex items-center gap-1">
+                                    <input
+                                        type="radio"
+                                        name="intervalMode"
+                                        value="seconds"
+                                    />
+                                    <span>Seconds</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div
+                            class="flex justify-center"
+                            id="intervalInputs"
+                        ></div>
+                    </div>
+
+                    <!-- Controls -->
+                    <div class="flex flex-col items-center gap-3 pt-4">
+                        <div
+                            class="flex flex-wrap items-center justify-center gap-4"
+                        >
+                            <button
+                                class="rounded-full bg-neutral-800 px-8 py-3 text-sm font-medium text-white"
+                                id="startBtn"
+                            >
+                                Start
+                            </button>
+                            <button
+                                class="rounded-full bg-transparent px-8 py-3 text-sm font-medium text-neutral-700"
+                                id="pauseBtn"
+                            >
+                                Pause
+                            </button>
+                            <button
+                                class="rounded-full bg-transparent px-8 py-3 text-sm font-medium text-neutral-700"
+                                id="resetBtn"
+                            >
+                                Reset
+                            </button>
+                        </div>
+                        </div>
+                    </div>
+
+                <!-- Progress Bar -->
+                <div class="flex flex-col gap-3">
+                    <div
+                        class="flex items-center justify-between text-xs font-medium uppercase tracking-[0.2em] text-neutral-500"
+                    >
+                        <span>Progress</span>
+                        <span id="nextBeep">Next: --:--</span>
+                    </div>
+                    <div class="h-0.5 w-full bg-neutral-300/70">
+                        <div
+                            class="h-0.5 w-0 bg-neutral-700 transition-[width] duration-200"
+                            id="progressBar"
+                        ></div>
+                    </div>
+                    <p class="text-xs text-rose-500" id="errorMsg"></p>
+                </div>
+                <p class="text-xs text-center text-neutral-500 mt-4">Shortcuts: Space = Start/Pause, R = Reset. Inputs lock after Start until Reset.</p>
+            </section>
+        </main>
+
+        <!-- main.js: UI wiring, timer logic, audio (WebAudio API) -->
+        <script src="main.js"></script>
+    </body>
+</html>
